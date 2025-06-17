@@ -1,0 +1,9 @@
+fastapi==0.100.0
+uvicorn==0.22.0
+sqlalchemy==2.0.18
+psycopg2-binary==2.9.7
+pydantic==2.5.2
+langchain-core==0.0.###   # (use your actual version)
+langchain-perplexity==0.0.### 
+langchain-text-splitters==0.0.###
+requests==2.31.0
