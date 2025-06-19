@@ -34,13 +34,18 @@
     },
     {
       "name": "Multi Factor Authentication Summary",
-      "check": "Extract multi factor authentication (MFA, 2FA, two‑factor, multi‑factor) adoption rate as a percentage (0–100). Count each implemented MFA-related control (e.g., CC6.7, CC6.8), and assign 1 point per 10%. Also return a description of how MFA is implemented (e.g., VPN, internal apps, privileged accounts), and list related SOC 2 control IDs. Use 0% if no MFA coverage is found.",
+      "check": "Identify whether multi factor authentication (MFA, 2FA, two‑factor, multi‑factor) is implemented. Extract adoption as a percentage (0–100) based on implemented controls. Include a description of how MFA is enforced, and list related SOC 2 control objects.",
       "output_field": "mfa_summary",
       "format": "object",
       "object_fields": [
         "adoption_percentage:float",
         "adoption_description:string|null",
-        "related_controls:list<string>"
+        "related_controls:list<object>"
+      ],
+      "related_controls_object_fields": [
+        "id:string",
+        "description:string",
+        "implemented:bool"
       ]
     },
     {
@@ -53,15 +58,30 @@
         "encryption_in_transit:bool",
         "encryption_coverage:float",
         "encryption_description:string|null",
-        "related_controls:list<string>"
+        "related_controls:list<object>"
+      ],
+      "related_controls_object_fields": [
+        "id:string",
+        "description:string",
+        "implemented:bool"
       ]
     },
     {
-      "name": "Patch Timeliness",
-      "check": "Extract the patch management timeline description as stated in the report (e.g., 'within 7 days', 'within 30 days', 'timely', 'as needed'). If no timeline is specified, set 'timeline_days' to null and 'timeline_description' to null.",
-      "output_field": "patch_timeline",
+      "name": "Patch Timeliness Summary",
+      "check": "Locate the organization’s patch management policy or control descriptions in the SOC 2 report. Extract: 1) a human‑readable `timeline_description` for how quickly patches or system updates are applied (e.g., 'within 7 days', 'within 30 days', 'regularly', 'as needed', 'timely'); 2) if a numeric duration is stated, parse `timeline_days` as an integer; 3) compute `patch_coverage` as a percentage where ≤7 days = 100%, ≤30 days = 80%, and 'regularly' or 'timely' = 75%; 4) list any related SOC 2 control objects under `related_controls` (with `id`, `description`, `implemented`). If no info is found, set all fields to null or empty.",
+      "output_field": "patch_timeline_summary",
       "format": "object",
-      "object_fields": ["timeline_description:string|null", "timeline_days:int|null"]
+      "object_fields": [
+        "timeline_description:string|null",
+        "timeline_days:int|null",
+        "patch_coverage:float|null",
+        "related_controls:list<object>"
+      ],
+      "related_controls_object_fields": [
+        "id:string",
+        "description:string",
+        "implemented:bool"
+      ]
     },
     {
       "name": "Breach History",
@@ -72,9 +92,13 @@
     },
     {
       "name": "Subcontractor Compliance",
-      "check": "Return true if subcontractors or vendors are explicitly stated as SOC 2 or ISO 27001 compliant.",
-      "output_field": "subcontractor_compliant",
-      "format": "bool"
+      "check": "Return true if subcontractors or vendors are explicitly stated as SOC 2 or ISO 27001 compliant; also extract a short note summarizing where and how this compliance is evidenced in the report.",
+      "output_field": "subcontractor_compliance",
+      "format": "object",
+      "object_fields": [
+        "compliant:bool",
+        "notes:string|null"
+      ]
     },
     {
       "name": "Audit Firm",
@@ -178,13 +202,64 @@
     "report_type": "Type II",
     "report_date": "2025-03-31",
     "trust_criteria_covered": ["Security", "Confidentiality"],
-    "mfa_adoption": 85.0,
-    "encryption_coverage": 100.0,
-    "patch_timeliness_days": 15,
+    "mfa_summary": {
+      "adoption_percentage": 85.0,
+      "adoption_description": "Multi factor authentication is enforced for VPN access and privileged internal systems using GlobalProtect and Active Directory policies.",
+      "related_controls": [
+        {
+          "id": "CC6.7",
+          "description": "Restricts the transmission, movement, and removal of information by requiring MFA for VPN access",
+          "implemented": true
+        },
+        {
+          "id": "CC6.8",
+          "description": "Detects and prevents unauthorized or malicious software by enforcing MFA on remote logins",
+          "implemented": true
+        }
+      ]
+    },
+    "encryption_summary": {
+      "encryption_at_rest": true,
+      "encryption_in_transit": true,
+      "encryption_coverage": 85.0,
+      "encryption_description": "Data is encrypted at rest using AES-256 and in transit using TLS 1.2+.",
+      "related_controls": [
+        {
+          "id": "CC3.1",
+          "description": "Encrypts sensitive data at rest",
+          "implemented": true
+        },
+        {
+          "id": "CC3.2",
+          "description": "Encrypts data in transit using TLS 1.2 or higher",
+          "implemented": true
+        }
+      ]
+    },
+    "patch_timeline_summary": {
+      "timeline_description": "Patches are applied within 7 days of release for all critical systems.",
+      "timeline_days": 7,
+      "patch_coverage": 100.0,
+      "related_controls": [
+        {
+          "id": "CC5.1",
+          "description": "Identifies and applies security patches in a timely manner.",
+          "implemented": true
+        },
+        {
+          "id": "CC5.2",
+          "description": "Maintains an inventory of systems and software to ensure all assets are patched.",
+          "implemented": true
+        }
+      ]
+    },
     "breaches": [
       { "description": "Example breach", "status": "resolved" }
     ],
-    "subcontractor_compliant": true,
+    "subcontractor_compliance": {
+      "compliant": true,
+      "notes": "Section III notes that ServiceNow holds a current SOC 2 Type II report (dated 2021‑12‑31) and its controls are relied upon as complementary subservice organization controls."
+    },
     "audit_firm": "Prescient Assurance LLC",
     "audit_period": {
       "audit_period_start": "2024-01-01",

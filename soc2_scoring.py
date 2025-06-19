@@ -203,7 +203,7 @@ def calculate_soc2_score(data: dict) -> dict:
         elif patch_days <= 30:
             raw_patch_score = 4
         # (you can extend for >30 if needed)
-    elif any(keyword in patch_description for keyword in ['timely', 'automated', 'policy-driven']):
+    elif any(keyword in patch_description for keyword in ['timely', 'automated', 'policy-driven', 'regular', 'scheduled']):
         raw_patch_score = 3
     elif any(keyword in patch_description for keyword in ['irregular', 'manual', 'partially documented']):
         raw_patch_score = 2
