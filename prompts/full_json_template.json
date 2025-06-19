@@ -33,16 +33,28 @@
       "format": "list<string>"
     },
     {
-      "name": "MFA Adoption",
-      "check": "Extract MFA adoption rate as a percentage (0-100). 1 point per 10%. Use 0 if not found.",
-      "output_field": "mfa_adoption",
-      "format": "float"
+      "name": "Multi Factor Authentication Summary",
+      "check": "Extract multi factor authentication (MFA) adoption rate as a percentage (0–100). Count each implemented MFA-related control (e.g., CC6.7, CC6.8), and assign 1 point per 10%. Also return a description of how MFA is implemented (e.g., VPN, internal apps, privileged accounts), and list related SOC 2 control IDs. Use 0% if no MFA coverage is found.",
+      "output_field": "mfa_summary",
+      "format": "object",
+      "object_fields": [
+        "adoption_percentage:float",
+        "adoption_description:string|null",
+        "related_controls:list<string>"
+      ]
     },
     {
-      "name": "Data Encryption",
-      "check": "Extract the encryption coverage as a percentage (0-100). 100% means fully encrypted, Partial = low score: if not found, use 0.",
-      "output_field": "encryption_coverage",
-      "format": "float"
+      "name": "Encryption Summary",
+      "check": "Check whether data encryption is implemented at rest and in transit. Extract encryption coverage as a percentage (0–100). 100% means both at rest and in transit are fully encrypted as per policy. If only partial encryption is found, lower the percentage accordingly. Use 0 if not mentioned. Also include a description of how encryption is enforced (e.g., AES-256, TLS 1.2+), and list related SOC 2 control IDs.",
+      "output_field": "encryption_summary",
+      "format": "object",
+      "object_fields": [
+        "encryption_at_rest:bool",
+        "encryption_in_transit:bool",
+        "encryption_coverage:float",
+        "encryption_description:string|null",
+        "related_controls:list<string>"
+      ]
     },
     {
       "name": "Patch Timeliness",
