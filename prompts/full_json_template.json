@@ -161,6 +161,10 @@
   },
   
   "expected_output_schema": {
+    "company_name": "Example Inc.",
+    "company_domain": "example.com",
+    "report_type": "Type II",
+    "report_date": "2025-03-31",
     "trust_criteria_covered": ["Security", "Confidentiality"],
     "mfa_adoption": 85.0,
     "encryption_coverage": 100.0,
@@ -170,6 +174,10 @@
     ],
     "subcontractor_compliant": true,
     "audit_firm": "Prescient Assurance LLC",
+    "audit_period": {
+      "audit_period_start": "2024-01-01",
+      "audit_period_end": "2024-12-31"
+    },
     "security_controls_implemented": {
       "trust_criteria_covered": ["Security", "Availability", "Confidentiality"],
       "total_controls_expected": 62,
