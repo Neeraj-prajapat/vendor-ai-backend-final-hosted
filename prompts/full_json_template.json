@@ -34,7 +34,7 @@
     },
     {
       "name": "Multi Factor Authentication Summary",
-      "check": "Extract multi factor authentication (MFA) adoption rate as a percentage (0–100). Count each implemented MFA-related control (e.g., CC6.7, CC6.8), and assign 1 point per 10%. Also return a description of how MFA is implemented (e.g., VPN, internal apps, privileged accounts), and list related SOC 2 control IDs. Use 0% if no MFA coverage is found.",
+      "check": "Extract multi factor authentication (MFA, 2FA, two‑factor, multi‑factor) adoption rate as a percentage (0–100). Count each implemented MFA-related control (e.g., CC6.7, CC6.8), and assign 1 point per 10%. Also return a description of how MFA is implemented (e.g., VPN, internal apps, privileged accounts), and list related SOC 2 control IDs. Use 0% if no MFA coverage is found.",
       "output_field": "mfa_summary",
       "format": "object",
       "object_fields": [
