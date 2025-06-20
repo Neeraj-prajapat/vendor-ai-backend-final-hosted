@@ -34,7 +34,7 @@
     },
     {
       "name": "Multi Factor Authentication Summary",
-      "check": "Identify whether multi factor authentication (MFA, 2FA, two‑factor, multi‑factor) is implemented. Extract adoption as a percentage (0–100) based on implemented controls. Include a description of how MFA is enforced, and list related SOC 2 control objects.",
+      "check": "Identify all multi factor authentication (MFA, 2FA, two‑factor, multi‑factor) related control IDs in the Security Controls Implemented section (e.g. CC6.7, CC6.8). Count how many are implemented (n_impl) out of the total expected MFA controls (n_total). Then set adoption_percentage = (n_impl / n_total) * 100. Do NOT substitute any hard‑coded numbers. Finally, return adoption_description of how MFA is enforced and the detailed related_controls list.",
       "output_field": "mfa_summary",
       "format": "object",
       "object_fields": [
@@ -43,14 +43,14 @@
         "related_controls:list<object>"
       ],
       "related_controls_object_fields": [
-        "id:string",
+        "id (e.g. CC6.1, CC6.2, CC6.5):string",
         "description:string",
         "implemented:bool"
       ]
     },
     {
       "name": "Encryption Summary",
-      "check": "Check whether data encryption is implemented at rest and in transit. Extract encryption coverage as a percentage (0–100). 100% means both at rest and in transit are fully encrypted as per policy. If only partial encryption is found, lower the percentage accordingly. Use 0 if not mentioned. Also include a description of how encryption is enforced (e.g., AES-256, TLS 1.2+), and list related SOC 2 control IDs.",
+      "check": "Identify all data encryption related control IDs in the Security Controls Implemented section (e.g. CC6.6, CC6.7 for at‑rest and in‑transit). Count how many of those controls are implemented (n_impl) out of the total expected encryption controls (n_total). Then set encryption_coverage = (n_impl / n_total) * 100. Do NOT substitute any hard‑coded numbers. Finally, return encryption_description of how encryption is enforced (e.g., AES-256, TLS 1.2+) and the detailed related_controls list.",
       "output_field": "encryption_summary",
       "format": "object",
       "object_fields": [
@@ -61,14 +61,14 @@
         "related_controls:list<object>"
       ],
       "related_controls_object_fields": [
-        "id:string",
+        "id (e.g. CC6.3, CC6.6, CC6.7, CC6.8, CC6.1):string",
         "description:string",
         "implemented:bool"
       ]
     },
     {
       "name": "Patch Timeliness Summary",
-      "check": "Locate the organization’s patch management policy or control descriptions in the SOC 2 report. Extract: 1) a human‑readable `timeline_description` for how quickly patches or system updates are applied (e.g., 'within 7 days', 'within 30 days', 'regularly', 'as needed', 'timely'); 2) if a numeric duration is stated, parse `timeline_days` as an integer; 3) compute `patch_coverage` as a percentage where ≤7 days = 100%, ≤30 days = 80%, and 'regularly' or 'timely' = 75%; 4) list any related SOC 2 control objects under `related_controls` (with `id`, `description`, `implemented`). If no info is found, set all fields to null or empty.",
+      "check": "Locate the organization’s patch management policy or control descriptions in the SOC 2 report. Extract: 1) a human‑readable `timeline_description` for how quickly patches or system updates are applied (e.g., 'within 7 days', 'within 30 days', 'regularly', 'as needed', 'timely'); 2) if a numeric duration is stated, parse `timeline_days` as an integer; 3) compute `patch_coverage` as a percentage where ≤7 days = 100%, ≤30 days = 80%, and 'regularly' or 'timely' = 100%, 'irregular' or 'manual' = 40%, 'no automation' = 20%; 4) list any related SOC 2 control objects under `related_controls` (with `id`, `description`, `implemented`). If no info is found, set all fields to null or empty.",
       "output_field": "patch_timeline_summary",
       "format": "object",
       "object_fields": [
@@ -78,7 +78,7 @@
         "related_controls:list<object>"
       ],
       "related_controls_object_fields": [
-        "id:string",
+        "id (e.g. CC7.1, CC7.2, CC8.1, CC9.2):string",
         "description:string",
         "implemented:bool"
       ]

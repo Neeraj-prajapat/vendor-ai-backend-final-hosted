@@ -71,19 +71,36 @@ def calculate_soc2_score(data: dict) -> dict:
         # final score out of 20
         return clamp(20 - total_deduction, 0, 20)
 
-    patch_timeline_data = data.get('patch_timeline', {})
+    def score_patch_coverage(patch_coverage):
+        if patch_coverage is None:
+            return 0
+        return round(patch_coverage / 20)
+
+    # timeline_days = data.get('patch_timeline_summary', {}).get('timeline_days')
+    patch_timeline_data = data.get('patch_timeline_summary', {})
+    
     timeline_days = patch_timeline_data.get('timeline_days')
+    timeline_coverage = patch_timeline_data.get('patch_coverage')
     timeline_description = patch_timeline_data.get('timeline_description', '')
     
     # Data Validation & Sanitization
     validated_data = {
         'trust_criteria': [str(c).lower() for c in data.get('trust_criteria_covered', [])],
-        'mfa_adoption': clamp(float(data.get('mfa_adoption', 0)), 0, 100),
-        'encryption_coverage': clamp(float(data.get('encryption_coverage', 0)), 0, 100),
+        
+        # 'mfa_adoption': clamp(float(data.get('mfa_adoption', 0)), 0, 100),
+        'mfa_adoption': clamp(float(data.get('mfa_summary', {}).get('adoption_percentage', 0)), 0, 100),
+        
+        # 'encryption_coverage': clamp(float(data.get('encryption_coverage', 0)), 0, 100),
+        'encryption_coverage': clamp(float(data.get('encryption_summary', {}).get('encryption_coverage', 0)), 0, 100),
+        
         # 'patch_timeliness_days': int(data.get('patch_timeliness_days', 90)),
         'patch_timeliness_days': int(timeline_days) if isinstance(timeline_days, int) else 0,
         'patch_timeline_description': str(timeline_description),
-        'subcontractor_compliant': bool(data.get('subcontractor_compliant', False)),
+        'timeline_coverage': clamp(float(timeline_coverage), 0, 100),
+        
+        # 'subcontractor_compliant': bool(data.get('subcontractor_compliant', False)),
+        'subcontractor_compliant': bool(data.get('subcontractor_compliance', {}).get('compliant', False)),
+        
         'audit_firm': str(data.get('audit_firm', '')).lower(),
         'breaches': data.get('breaches', []),
         'security_controls_implemented': clamp(float(data.get('security_controls_implemented', {}).get('implemented_percentage', 0)), 0, 100),
@@ -128,7 +145,7 @@ def calculate_soc2_score(data: dict) -> dict:
     breakdown['exception_count'] = score_exception_count(no_of_excep, repeats)
 
     
-    # 3. Exception Criticality (10%)
+    # 3. Exception Criticality (15%)
     # Use summary['escalated_severity_count']
     escal = validated_data['exception_criticality']
     low_e, med_e, hi_e = escal.get('low', 0), escal.get('medium', 0), escal.get('high', 0)
@@ -190,27 +207,28 @@ def calculate_soc2_score(data: dict) -> dict:
     breakdown['data_encryption'] = clamp(int(validated_data['encryption_coverage'] // 10), 0, 10)
     
     # 8. Patch Management (5%)
-    patch_days = validated_data['patch_timeliness_days']
-    patch_description = validated_data['patch_timeline_description'].lower()
+    # patch_days = validated_data['patch_timeliness_days']
+    # patch_description = validated_data['patch_timeline_description'].lower()
         
-    # Default score
-    raw_patch_score = 0
+    # # Default score
+    # raw_patch_score = 0
 
-    if patch_days > 0:
-        # only score when there's actually a timeline
-        if patch_days <= 7:
-            raw_patch_score = 5
-        elif patch_days <= 30:
-            raw_patch_score = 4
-        # (you can extend for >30 if needed)
-    elif any(keyword in patch_description for keyword in ['timely', 'automated', 'policy-driven', 'regular', 'scheduled']):
-        raw_patch_score = 3
-    elif any(keyword in patch_description for keyword in ['irregular', 'manual', 'partially documented']):
-        raw_patch_score = 2
-    elif 'reactive' in patch_description or 'no automation' in patch_description:
-        raw_patch_score = 1
+    # if patch_days > 0:
+    #     # only score when there's actually a timeline
+    #     if patch_days <= 7:
+    #         raw_patch_score = 5
+    #     elif patch_days <= 30:
+    #         raw_patch_score = 4
+    #     # (you can extend for >30 if needed)
+    # elif any(keyword in patch_description for keyword in ['timely', 'automated', 'policy-driven', 'regular', 'scheduled']):
+    #     raw_patch_score = 3
+    # elif any(keyword in patch_description for keyword in ['irregular', 'manual', 'partially documented']):
+    #     raw_patch_score = 2
+    # elif 'reactive' in patch_description or 'no automation' in patch_description:
+    #     raw_patch_score = 1
     
     # Clamp just in case (though this will always be within 0–5):
+    raw_patch_score = score_patch_coverage(validated_data['timeline_coverage'])
     breakdown['patch_timeliness'] = clamp(raw_patch_score, 0, 5)
     
     # 9. Third Party Management (5%)
