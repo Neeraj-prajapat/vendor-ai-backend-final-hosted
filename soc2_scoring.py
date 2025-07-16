@@ -4,6 +4,18 @@ def calculate_soc2_score(data: dict) -> dict:
     
     def clamp(value: float, min_val: float, max_val: float) -> float:
         return max(min(value, max_val), min_val)
+    
+    def safe_float(val, default=0.0):
+        try:
+            return float(val)
+        except (TypeError, ValueError):
+            return default
+        
+    def safe_int(val, default=0):
+        try:
+            return int(val)
+        except (TypeError, ValueError):
+            return default
 
     def score_effectiveness_controls(eff: dict) -> float:
         """Score security control effectiveness out of 4"""
@@ -44,9 +56,12 @@ def calculate_soc2_score(data: dict) -> dict:
         """
         # 1) Original‑severity deductions
         orig = no_of_exception
-        low_orig = orig.get('low', 0)
-        med_orig = orig.get('medium', 0)
-        high_orig  = orig.get('high', 0)
+        # low_orig = orig.get('low', 0)
+        # med_orig = orig.get('medium', 0)
+        # high_orig  = orig.get('high', 0)
+        low_orig  = safe_int(orig.get('low'))
+        med_orig  = safe_int(orig.get('medium'))
+        high_orig = safe_int(orig.get('high'))
 
         total_orig_ded = low_orig * (1) + med_orig *(4) + high_orig * (10)
 
@@ -72,9 +87,10 @@ def calculate_soc2_score(data: dict) -> dict:
         return clamp(20 - total_deduction, 0, 20)
 
     def score_patch_coverage(patch_coverage):
-        if patch_coverage is None:
-            return 0
-        return round(patch_coverage / 20)
+        # if patch_coverage is None:
+        #     return 0
+        cov = safe_float(patch_coverage, default=0.0)
+        return round(cov / 20)
 
     # timeline_days = data.get('patch_timeline_summary', {}).get('timeline_days')
     patch_timeline_data = data.get('patch_timeline_summary', {})
@@ -88,22 +104,29 @@ def calculate_soc2_score(data: dict) -> dict:
         'trust_criteria': [str(c).lower() for c in data.get('trust_criteria_covered', [])],
         
         # 'mfa_adoption': clamp(float(data.get('mfa_adoption', 0)), 0, 100),
-        'mfa_adoption': clamp(float(data.get('mfa_summary', {}).get('adoption_percentage', 0)), 0, 100),
+        # 'mfa_adoption': clamp(float(data.get('mfa_summary', {}).get('adoption_percentage', 0)), 0, 100),
+        'mfa_adoption': clamp(safe_float(data.get('mfa_summary', {}).get('adoption_percentage')), 0, 100),
         
         # 'encryption_coverage': clamp(float(data.get('encryption_coverage', 0)), 0, 100),
-        'encryption_coverage': clamp(float(data.get('encryption_summary', {}).get('encryption_coverage', 0)), 0, 100),
+        # 'encryption_coverage': clamp(float(data.get('encryption_summary', {}).get('encryption_coverage', 0)), 0, 100),
+        'encryption_coverage': clamp(safe_float(data.get('encryption_summary', {}).get('encryption_coverage')), 0, 100),
         
         # 'patch_timeliness_days': int(data.get('patch_timeliness_days', 90)),
-        'patch_timeliness_days': int(timeline_days) if isinstance(timeline_days, int) else 0,
+        # 'patch_timeliness_days': int(timeline_days) if isinstance(timeline_days, int) else 0,
+        'patch_timeliness_days': safe_int(timeline_days),
         'patch_timeline_description': str(timeline_description),
-        'timeline_coverage': clamp(float(timeline_coverage), 0, 100),
+        # 'timeline_coverage': clamp(float(timeline_coverage), 0, 100),
+        'timeline_coverage': clamp(safe_float(timeline_coverage), 0, 100),
         
         # 'subcontractor_compliant': bool(data.get('subcontractor_compliant', False)),
         'subcontractor_compliant': bool(data.get('subcontractor_compliance', {}).get('compliant', False)),
         
         'audit_firm': str(data.get('audit_firm', '')).lower(),
         'breaches': data.get('breaches', []),
-        'security_controls_implemented': clamp(float(data.get('security_controls_implemented', {}).get('implemented_percentage', 0)), 0, 100),
+        
+        # 'security_controls_implemented': clamp(float(data.get('security_controls_implemented', {}).get('implemented_percentage', 0)), 0, 100),
+        'security_controls_implemented': clamp(safe_float(data.get('security_controls_implemented', {}).get('implemented_percentage')), 0, 100),
+        
         'effectiveness_controls': data.get('effectiveness_controls', {}),
         'exceptions': data.get('exceptions', []),
         'exception_criticality' : data.get('exception_criticality_summary', {}).get('escalated_severity_count',{}),

@@ -112,6 +112,134 @@
     "output_field": "audit_period",
     "format": "object",
     "object_fields": ["audit_period_start:string", "audit_period_end:string"]
+    },
+    {
+    "name": "Controls Summary",
+    "check": "Map all SOC 2 controls into their respective criteria groups using a three-step approach:\n1. **Heading match**: If the text around a control ID includes a recognizable section heading (e.g. “Control Environment”, “Risk Assessment”, “Change Management”, “Availability”, “Confidentiality”, “Processing Integrity”, “Privacy”), assign it to that group.\n2.**Trust ID table**: If you see a table labeled “Tests of Operating Effectiveness and Results of Tests” or any table with a “Trust ID” column, extract each row’s ID, description, and test result, then map as in step 1 or step 3.\n3. **ID prefix fallback**: Otherwise, infer the group from the control ID prefix (e.g. CC1 → Control Environment, CC2 → Communication & Information, CC3 → Risk Assessment, CC4 → Monitoring Activities, CC5 → Control Activities, CC6 → Logical & Physical Access, CC7 → System Operations, CC8 → Change Management, CC9 → Risk Mitigation; A1 → Availability; C1 → Confidentiality; PI1 → Processing Integrity; P1 → Privacy).\n\nDo not omit any control IDs. For each control, set:\n- status: one of \"pass\" (implemented with no exceptions), \"partial\" (minor exceptions), or \"fail\" (not implemented or major issues).\n- result: a short narrative of the auditor’s test outcome (e.g. \"No exceptions noted\", \"Backup testing delayed\"). Use null if no result is recorded.\n- description: the control description as stated in the report, or \"\" if missing.\n- remediation: \"\" if no remediation guidance is provided.\n\nReturn fully populated lists under common_criteria, availability, confidentiality, processing_integrity, and privacy.",
+    "output_field": "controls_summary",
+    "format": "object",
+    "object_fields": [
+      "common_criteria: list<object>",
+      "availability: list<object>",
+      "confidentiality: list<object>",
+      "processing_integrity: list<object>",
+      "privacy: list<object>"
+    ],
+    "common_criteria": [
+      {
+        "id": "CC1",
+        "name": "Control Environment",
+        "controls": [
+          {"id": "CC1.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC1.2", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC1.3", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC1.4", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC1.5", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC2",
+        "name": "Communication and Information",
+        "controls": [
+          {"id": "CC2.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC2.2", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC2.3", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC3",
+        "name": "Risk Assessment",
+        "controls": [
+          {"id": "CC3.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC3.2", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC3.3", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC3.4", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC4",
+        "name": "Monitoring Activities",
+        "controls": [
+          {"id": "CC4.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC4.2", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC5",
+        "name": "Control Activities",
+        "controls": [
+          {"id": "CC5.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC5.2", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC5.3", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC6",
+        "name": "Logical and Physical Access Control",
+        "controls": [
+          {"id": "CC6.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.2", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.3", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.4", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.5", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.6", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.7", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC6.8", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC7",
+        "name": "System Operations",
+        "controls": [
+          {"id": "CC7.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC7.2", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC7.3", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC7.4", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC7.5", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC8",
+        "name": "Change Management",
+        "controls": [
+          {"id": "CC8.1", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      },
+      {
+        "id": "CC9",
+        "name": "Risk Mitigation",
+        "controls": [
+          {"id": "CC9.1", "description": "", "status": "", "result": "", "remediation": ""},
+          {"id": "CC9.2", "description": "", "status": "", "result": "", "remediation": ""}
+        ]
+      }
+    ],
+    "availability": [
+      {"id": "A1.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "A1.2", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "A1.3", "description": "", "status": "", "result": "", "remediation": ""}
+    ],
+    "confidentiality": [
+      {"id": "C1.1", "description": "", "status": "", "result": "", "remediation": "" },
+      {"id": "C1.2", "description": "", "status": "", "result": "", "remediation": "" }
+    ],
+    "processing_integrity": [
+      {"id": "PI1.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "PI1.2", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "PI1.3", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "PI1.4", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "PI1.5", "description": "", "status": "", "result": "", "remediation": ""}
+    ],
+    "privacy": [
+      {"id": "P1.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P2.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P3.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P4.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P5.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P6.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P7.1", "description": "", "status": "", "result": "", "remediation": ""},
+      {"id": "P8.1", "description": "", "status": "", "result": "", "remediation": ""}
+    ]
     }
   ],
 
@@ -264,6 +392,13 @@
     "audit_period": {
       "audit_period_start": "2024-01-01",
       "audit_period_end": "2024-12-31"
+    },
+    "controls_summary": {
+      "common_criteria": [],
+      "availability": [],
+      "confidentiality": [],
+      "processing_integrity":[],
+      "privacy":[]
     },
     "security_controls_implemented": {
       "trust_criteria_covered": ["Security", "Availability", "Confidentiality"],

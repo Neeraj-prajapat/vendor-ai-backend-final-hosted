@@ -12,6 +12,10 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pdf_parser import extract_text
 from soc2_scoring import calculate_soc2_score
 
+from urllib.parse import urlparse
+from googleapiclient.discovery import build
+from core.config import GOOGLE_API_KEY, GOOGLE_CX
+
 # ----------------------
 # Flexible JSON extractor
 # ----------------------
@@ -48,8 +52,9 @@ class SOC2Extractor:
         # prompt_file = Path(__file__).parent.parent / "prompts" / "full_json_template.json"
         
         # Get absolute path to the project root (2 levels up from this file)
-        base_dir = Path(__file__).resolve().parent.parent
-        prompt_path = base_dir.parent / "prompts" / "full_json_template.json"
+        base_dir = Path(__file__).resolve().parent.parent.parent
+        # prompt_path = base_dir.parent / "prompts" / "full_json_template.json"
+        prompt_path = base_dir / "prompts" / "full_json_template.json"
 
         if not prompt_path.exists():
             raise FileNotFoundError(f"Template file not found: {prompt_path}")
@@ -69,9 +74,34 @@ class SOC2Extractor:
         )
 
         self.prompt = ChatPromptTemplate.from_template(template)
-        self.llm = ChatPerplexity(model="sonar", api_key=api_key, temperature=0)
+        self.llm = ChatPerplexity(model="sonar", api_key="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", temperature=0)
         self.splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=300)
 
+        # Google Search Setup
+        self.google_service = build("customsearch", "v1", developerKey=GOOGLE_API_KEY)
+        self.google_cx = GOOGLE_CX
+
+    def _lookup_domain_via_google(self, company_name: str) -> str | None:
+        resp = (
+            self.google_service.cse()
+            .list(q=f"{company_name} official website", cx=self.google_cx, num=3)
+            .execute()
+        )
+
+        for item in resp.get("items", []):
+            link = item.get("link")
+            if link:
+                # Get netloc (e.g., 'www.example.com')
+                netloc = urlparse(link).netloc
+
+                # Strip common subdomains like 'www.'
+                parts = netloc.split('.')
+                if len(parts) >= 2:
+                    # Return only domain + TLD, e.g., 'example.com'
+                    return ".".join(parts[-2:])
+        
+        return None 
+        
     def extract(self, pdf_path: str) -> Dict[str, Any]:
         raw = extract_text(pdf_path)
         chunks = self.splitter.split_text(raw)
@@ -90,6 +120,16 @@ class SOC2Extractor:
         # CHANGED: Use flexible JSON extractor instead of simple regex
         data = extract_json_from_text(content)
         
+        # FILL IN MISSING DOMAIN IF company_name EXISTS AND domain is null
+        if data.get("company_name") and not data.get("company_domain"):
+            resolved_domain = self._lookup_domain_via_google(data["company_name"])
+            if resolved_domain:
+                data["company_domain"] = resolved_domain
+            else:
+                # Default to using the company name as domain if Google fails
+                fallback_domain = data["company_name"].lower().replace(" ", "").replace(",", "").replace(".", "") + ".com"
+                data["company_domain"] = fallback_domain
+        
         score = calculate_soc2_score(data)
         return {"extracted": data, "score": score}
 
@@ -98,6 +138,7 @@ class SOC2Extractor:
 
 
 
+#?using before chop wise
 
     # def extract(self, pdf_path: str) -> Dict[str, Any]:
     #     raw_text = extract_text(pdf_path)
@@ -149,7 +190,7 @@ class SOC2Extractor:
     
     
     
-    
+#? end  
     
     
     
