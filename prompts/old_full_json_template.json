@@ -16,7 +16,7 @@
     },
     {
       "name": "Type of Report",
-      "check": "Extract the full name of the SOC 2 report as stated in the report title or summary (e.g., 'SOC 2 Type I' or 'SOC 2 Type II'). Normalize the type if written in Arabic numerals (e.g., 'SOC 2 Type 2') to Roman numerals (e.g., 'SOC 2 Type II'). The output should always be in the format 'SOC 2 Type I' or 'SOC 2 Type II'.",
+      "check": "Extract the type of SOC 2 report (e.g., Type I or Type II) as stated in the title or report summary.",
       "output_field": "report_type",
       "format": "string"
     },
@@ -115,132 +115,31 @@
     },
     {
     "name": "Controls Summary",
-    "check": "Map all SOC 2 controls into their respective criteria groups using a three-step approach:\n1. **Heading match**: If the text around a control ID includes a recognizable section heading (e.g. “Control Environment”, “Risk Assessment”, “Change Management”, “Availability”, “Confidentiality”, “Processing Integrity”, “Privacy”), assign it to that group.\n2.**Trust ID table**: If you see a table labeled “Tests of Operating Effectiveness and Results of Tests” or any table with a “Trust ID” column, extract each row’s ID, description, and test result, then map as in step 1 or step 3.\n3. **ID prefix fallback**: Otherwise, infer the group from the control ID prefix (e.g. CC1 → Control Environment, CC2 → Communication & Information, CC3 → Risk Assessment, CC4 → Monitoring Activities, CC5 → Control Activities, CC6 → Logical & Physical Access, CC7 → System Operations, CC8 → Change Management, CC9 → Risk Mitigation; A1 → Availability; C1 → Confidentiality; PI1 → Processing Integrity; P1 → Privacy).\n\nDo not omit any control IDs. For each control, set:\n- status: one of \"pass\" (implemented with no exceptions), \"partial\" (minor exceptions), or \"fail\" (not implemented or major issues).\n- result: a short narrative of the auditor’s test outcome (e.g. \"No exceptions noted\", \"Backup testing delayed\"). Use null if no result is recorded.\n- description: the control description as stated in the report, or \"\" if missing.\n- remediation: \"\" if no remediation guidance is provided.\n\nReturn fully populated lists under common_criteria, availability, confidentiality, processing_integrity, and privacy.",
+    "check": "Extract all SOC 2 controls mentioned in the report with their control IDs (e.g., CC1.1, CC6.2, etc.), descriptions, and implementation status. Look for controls in the 'Independent Service Auditor's description of Tests of Controls and Results' section and any control matrices or tables. For detailed_controls, select the MOST IMPORTANT controls from each category.",
     "output_field": "controls_summary",
     "format": "object",
     "object_fields": [
-      "common_criteria: list<object>",
-      "availability: list<object>",
-      "confidentiality: list<object>",
-      "processing_integrity: list<object>",
-      "privacy: list<object>"
+      "total_controls_identified:int",
+      "controls_by_category:object",
+      "detailed_controls:list<object>"
     ],
-    "common_criteria": [
-      {
-        "id": "CC1",
-        "name": "Control Environment",
-        "controls": [
-          {"id": "CC1.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC1.2", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC1.3", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC1.4", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC1.5", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC2",
-        "name": "Communication and Information",
-        "controls": [
-          {"id": "CC2.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC2.2", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC2.3", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC3",
-        "name": "Risk Assessment",
-        "controls": [
-          {"id": "CC3.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC3.2", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC3.3", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC3.4", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC4",
-        "name": "Monitoring Activities",
-        "controls": [
-          {"id": "CC4.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC4.2", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC5",
-        "name": "Control Activities",
-        "controls": [
-          {"id": "CC5.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC5.2", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC5.3", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC6",
-        "name": "Logical and Physical Access Control",
-        "controls": [
-          {"id": "CC6.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.2", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.3", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.4", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.5", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.6", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.7", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC6.8", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC7",
-        "name": "System Operations",
-        "controls": [
-          {"id": "CC7.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC7.2", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC7.3", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC7.4", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC7.5", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC8",
-        "name": "Change Management",
-        "controls": [
-          {"id": "CC8.1", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      },
-      {
-        "id": "CC9",
-        "name": "Risk Mitigation",
-        "controls": [
-          {"id": "CC9.1", "description": "", "status": "", "result": "", "remediation": ""},
-          {"id": "CC9.2", "description": "", "status": "", "result": "", "remediation": ""}
-        ]
-      }
+    "controls_by_category_fields": [
+      "control_environment:int",
+      "communication_information:int", 
+      "risk_assessment:int",
+      "monitoring_activities:int",
+      "control_activities:int",
+      "logical_physical_access:int"
     ],
-    "availability": [
-      {"id": "A1.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "A1.2", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "A1.3", "description": "", "status": "", "result": "", "remediation": ""}
-    ],
-    "confidentiality": [
-      {"id": "C1.1", "description": "", "status": "", "result": "", "remediation": "" },
-      {"id": "C1.2", "description": "", "status": "", "result": "", "remediation": "" }
-    ],
-    "processing_integrity": [
-      {"id": "PI1.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "PI1.2", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "PI1.3", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "PI1.4", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "PI1.5", "description": "", "status": "", "result": "", "remediation": ""}
-    ],
-    "privacy": [
-      {"id": "P1.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P2.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P3.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P4.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P5.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P6.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P7.1", "description": "", "status": "", "result": "", "remediation": ""},
-      {"id": "P8.1", "description": "", "status": "", "result": "", "remediation": ""}
+    "detailed_controls_object_fields": [
+      "control_id:string",
+      "control_category:string",
+      "description:string",
+      "status:string",
+      "test_result:string|null",
+      "exceptions_noted:bool"
     ]
-    }
+  }
   ],
 
   "SECURITY_CONTROLS_IMPLEMENTED": {
@@ -394,11 +293,33 @@
       "audit_period_end": "2024-12-31"
     },
     "controls_summary": {
-      "common_criteria": [],
-      "availability": [],
-      "confidentiality": [],
-      "processing_integrity":[],
-      "privacy":[]
+      "total_controls_identified": 25,
+      "controls_by_category": {
+        "control_environment": 5,
+        "communication_information": 3,
+        "risk_assessment": 4,
+        "monitoring_activities": 2,
+        "control_activities": 3,
+        "logical_physical_access": 8
+      },
+      "detailed_controls": [
+        {
+          "control_id": "CC1.1",
+          "control_category": "Control Environment",
+          "description": "The entity demonstrates a commitment to integrity and ethical values",
+          "status": "Implemented",
+          "test_result": "No exceptions noted",
+          "exceptions_noted": false
+        },
+        {
+          "control_id": "CC6.1",
+          "control_category": "Logical and Physical Access Controls",
+          "description": "The entity implements logical access security software, infrastructure, and architectures over protected information assets",
+          "status": "Implemented", 
+          "test_result": "No exceptions noted",
+          "exceptions_noted": false
+        }
+      ]
     },
     "security_controls_implemented": {
       "trust_criteria_covered": ["Security", "Availability", "Confidentiality"],

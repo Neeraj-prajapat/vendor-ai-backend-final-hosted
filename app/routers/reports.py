@@ -17,7 +17,8 @@ from core.config import API_KEY  # import from config
 router = APIRouter()
 
 @router.post("/upload", response_model=schemas.ReportResponse)
-async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
+# async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)): 
+def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
     if not (file.filename.lower().endswith(".pdf") or file.filename.lower().endswith(".docx")):
         raise HTTPException(status_code=400, detail="Only PDF and DOCX files are supported")
 
